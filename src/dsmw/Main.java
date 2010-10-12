@@ -5,14 +5,9 @@
 
 package dsmw;
 
-import edu.nyu.cs.javagit.api.DotGit;
-import edu.nyu.cs.javagit.api.JavaGitConfiguration;
+
 import edu.nyu.cs.javagit.api.JavaGitException;
-import edu.nyu.cs.javagit.api.commands.GitLogResponse.Commit;
-import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -20,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-        public static void main( String[] args ) throws JavaGitException, IOException
+        public static void main( String[] args ) throws JavaGitException, IOException, Exception
     {
         if (args.length<2)
         {
@@ -29,22 +24,13 @@ public class Main {
         }
 
 
-        //JavaGitConfiguration.setGitPath("/usr/bin/");
+        Git G = new Git("/usr/bin/");
+        G.getVersion();
+        G.getLog();
 
-        System.out.println("Git version : "+JavaGitConfiguration.getGitVersion());
-
-        File repositoryDirectory = new File("/Users/klm/code/cakephp");
-        DotGit dotGit = DotGit.getInstance(repositoryDirectory);
-
-        System.out.println("Log size = "+dotGit.getLog().size());
-
-        // Print commit messages of the current branch
-//        for (Commit c : dotGit.getLog()) {
-//            System.out.println(c.getMessage());
-//        }
-
-
-
+        String page="http://en.wikipedia.org/w/";
+        Wikipedia W= new Wikipedia(page);
+        W.getPage();
 
         String DBdirectory = args[0] ;
         String ontoFile = "file:"+args[1];
