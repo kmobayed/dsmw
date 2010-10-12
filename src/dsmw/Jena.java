@@ -1,5 +1,6 @@
 
-package fr.univ.nantes.dsmwawarness;
+package dsmw;
+
 
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;

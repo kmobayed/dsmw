@@ -1,0 +1,70 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix owl2xml:  <http://www.w3.org/2006/12/owl2-xml#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix MS2W:    <http://www.semanticweb.org/ontologies/2009/4/MS2W.owl#> .
+@prefix log: 	<http://www.w3.org/2000/10/swap/log#>.
+
+MS2W:U3RlcGhlbiBIb2x0IDxzaG9sdEBhZGl1bS5pbT4 a MS2W:WikiSite .
+
+MS2W:amhpbGRlYnJAY2lzY28uY29t a MS2W:WikiSite .
+
+MS2W:QW5kcmV3IFdlbGxpbmd0b24gPHByb3RvbkBhZGl1bS5pbT4 a MS2W:WikiSite .
+
+MS2W:U21ldw a MS2W:WikiSite .
+
+MS2W:Q29saW4gQmFycmV0dCA8Y29saW5Ac3ByaW5nc2FuZHN0cnV0cy5jb20 a MS2W:WikiSite .
+
+MS2W:QXJjaGltZWRlcyBUcmFqYW5vIDxkZXZlbG9wZXJAdHJhamFuby5uZXQ a MS2W:WikiSite .
+
+MS2W:WmFjaGFyeSBXZXN0IDx6YWN3QGFkaXVtLmltPg a MS2W:WikiSite .
+
+MS2W:RXZhbiBTY2hvZW5iZXJn a MS2W:WikiSite .
+
+MS2W:UGV0ZXIgSG9zZXkgPGhnQGJvcmVkem8ub3JnPg a MS2W:WikiSite .
+
+MS2W:V2lsbGlhbSBCb3dsaW5nIDx3aWxsQHdib3dsaW5nLmluZm8 a MS2W:WikiSite .
+
+MS2W:QW5kcmVhcyBNb25pdHplciA8YW1AYWRpdW14LmNvbT4 a MS2W:WikiSite .
+
+MS2W:QWFyb25AbWFjYm9vay1wcm8ubG9jYWw a MS2W:WikiSite .
+
+MS2W:cnlhbkByemcubG9jYWw a MS2W:WikiSite .
+
+MS2W:dGVybWludXNAQWxlcGgubG9jYWw a MS2W:WikiSite .
+
+MS2W:RGF2aWQgU21pdGggPGNhdGZpc2gubWFuQGdtYWlsLmNvbT4 a MS2W:WikiSite .
+
+MS2W:TWlrZSBBYmR1bGxhaA a MS2W:WikiSite .
+
+MS2W:RG9tZW5pY28gQWdyZXN0YSA8ZC5hZ3Jlc3RhQGdtYWlsLmNvbSAobWFpbHRvOmQuYWdyZXN0YUBnbWFpbC5jb20pPg a MS2W:WikiSite .
+
+MS2W:QXJpZWwgQ2hpbm4 a MS2W:WikiSite .
+
+MS2W:UGV0ZXIgSG9zZXk a MS2W:WikiSite .
+
+MS2W:UnlhbiBHb3Zvc3Rlcw a MS2W:WikiSite .
+
+MS2W:RnJhbmsgPHdpeGFyZHlAZ21haWwuY29tPg a MS2W:WikiSite .
+
+MS2W:WmFjaGFyeSBXZXN0IDx6YWN3QGFkaXVteC5jb20 a MS2W:WikiSite .
+
+MS2W:WmFjaGFyeSBXZXN0IDx6YWN3ZXN0QGdtYWlsLmNvbT4 a MS2W:WikiSite .
+
+MS2W:RGF2aWQgU21pdGg a MS2W:WikiSite .
+
+MS2W:TWF0dCBIYW5kbGV5 a MS2W:WikiSite .
+
+MS2W:Q29saW4gQmFycmV0dA a MS2W:WikiSite .
+
+MS2W:QW5kcmVhcyBNb25pdHplcg a MS2W:WikiSite .
+
+MS2W:U3RlcGhlbiBIb2x0 a MS2W:WikiSite .
+
+MS2W:RXJpYyBSaWNoaWU a MS2W:WikiSite .
+
+MS2W:RWxsaW90dCBIYXJyaXM a MS2W:WikiSite .
+
+MS2W:QWxhbiBIdW1waGVyeXM a MS2W:WikiSite .
+

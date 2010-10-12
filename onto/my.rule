@@ -1,0 +1,15 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix MS2W:    <http://www.semanticweb.org/ontologies/2009/4/MS2W.owl#> .
+
+[knowsrule:
+	(?a rdf:type MS2W:Patch)
+	(?b rdf:type MS2W:Patch)
+	(?x rdf:type MS2W:WikiSite)
+	(?y rdf:type MS2W:WikiSite)
+	(?a MS2W:hasSite ?x)
+	(?b MS2W:hasSite ?y)
+	(?a rdfs:subClassOf ?b) -> (?x MS2W:knows ?y)
+]
+

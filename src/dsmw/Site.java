@@ -1,5 +1,7 @@
 
-package fr.univ.nantes.dsmwawarness;
+package dsmw;
+
+
 import java.util.Collection;
 
 /**

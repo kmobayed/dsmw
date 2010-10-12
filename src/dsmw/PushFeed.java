@@ -1,5 +1,5 @@
 
-package fr.univ.nantes.dsmwawarness;
+package dsmw;
 
 
 /**

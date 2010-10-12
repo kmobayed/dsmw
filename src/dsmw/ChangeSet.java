@@ -1,9 +1,8 @@
-package fr.univ.nantes.dsmwawarness;
-import fr.univ.nantes.dsmwawarness.Document;
-import fr.univ.nantes.dsmwawarness.Patch;
-import fr.univ.nantes.dsmwawarness.PullFeed;
-import fr.univ.nantes.dsmwawarness.PushFeed;
+
+package dsmw;
+
 import java.util.Collection;
+
 /**
  *
  * @author halaskaf
