@@ -28,15 +28,21 @@ public class Main {
                 System.exit(0);
         }
 
-//        System.out.println("Git version : "+JavaGitConfiguration.getGitVersion());
-//
-//        File repositoryDirectory = new File("~/code/linux2.6/.git");
-//        DotGit dotGit = DotGit.getInstance(repositoryDirectory);
-//
-//        // Print commit messages of the current branch
+
+        //JavaGitConfiguration.setGitPath("/usr/bin/");
+
+        System.out.println("Git version : "+JavaGitConfiguration.getGitVersion());
+
+        File repositoryDirectory = new File("/Users/klm/code/cakephp");
+        DotGit dotGit = DotGit.getInstance(repositoryDirectory);
+
+        System.out.println("Log size = "+dotGit.getLog().size());
+
+        // Print commit messages of the current branch
 //        for (Commit c : dotGit.getLog()) {
 //            System.out.println(c.getMessage());
 //        }
+
 
 
 
@@ -50,8 +56,8 @@ public class Main {
         J.addSite(MySite);
 
         J.listSites();
-        System.out.println("===========");
-        J.listStatements();
+        //System.out.println("===========");
+        //J.listStatements();
         J.close();
     }
 
