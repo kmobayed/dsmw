@@ -1,8 +1,9 @@
 
 package dsmw;
 
+import java.util.ArrayList;
 
-import java.util.Collection;
+
 
 /**
  *
@@ -10,35 +11,35 @@ import java.util.Collection;
  */
 public class Site {
 private String siteID;
-private Collection<Document> docs;
-private Collection<PushFeed> pushs;
-private Collection<PullFeed> pulls;
+private ArrayList<Document> docs;
+private ArrayList<PushFeed> pushs;
+private ArrayList<PullFeed> pulls;
 
 public Site(String id) {
     siteID =id;
 }
 
-    public Collection<Document> getDocs() {
+    public ArrayList<Document> getDocs() {
         return docs;
     }
 
-    public void setDocs(Collection<Document> docs) {
+    public void setDocs(ArrayList<Document> docs) {
         this.docs = docs;
     }
 
-    public Collection<PullFeed> getPulls() {
+    public ArrayList<PullFeed> getPulls() {
         return pulls;
     }
 
-    public void setPulls(Collection<PullFeed> pulls) {
+    public void setPulls(ArrayList<PullFeed> pulls) {
         this.pulls = pulls;
     }
 
-    public Collection<PushFeed> getPushs() {
+    public ArrayList<PushFeed> getPushs() {
         return pushs;
     }
 
-    public void setPushs(Collection<PushFeed> pushs) {
+    public void setPushs(ArrayList<PushFeed> pushs) {
         this.pushs = pushs;
     }
 

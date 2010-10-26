@@ -23,13 +23,15 @@ public class Main {
                 System.exit(0);
         }
 
-
-          Git G = new Git("/Users/klm/code/project2");
+        String DBdirectory = args[0] ;
+        String ontoFile = "file:"+args[1];
+        Git G = new Git("/Users/klm/code/project2");
+        Jena J= new Jena(DBdirectory,ontoFile);
 //         G.getVersion();
 //        G.getLog();
         //String cs=G.gitGetFirstCS();
-        G.gitLogNoMerge();
-        G.gitLogMerge();
+        G.gitLogNoMerge(J);
+        G.gitLogMerge(J);
 
         //System.out.println("1st CS= "+cs);
         //System.out.println(G.gitGetCSdata(cs).getChgSetID());
@@ -39,19 +41,18 @@ public class Main {
 //        Wikipedia W= new Wikipedia(page);
 //        W.getPage();
 //
-//        String DBdirectory = args[0] ;
-//        String ontoFile = "file:"+args[1];
+//        
 //
 //        Site MySite = new Site("Site1");
 //
-//        Jena J= new Jena(DBdirectory,ontoFile);
+//        
 //
 //        J.addSite(MySite);
 //
-//        J.listSites();
+        J.listSites();
 //        //System.out.println("===========");
 //        //J.listStatements();
-//        J.close();
+        J.close();
     }
 
 }

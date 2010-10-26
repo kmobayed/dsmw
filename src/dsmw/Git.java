@@ -5,9 +5,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /**
  *
  * @author klm
@@ -89,13 +90,15 @@ public class Git {
     }
  */
 
-    public void gitLogNoMerge()
+    public void gitLogNoMerge(Jena J)
     {
         String cmd1="git log --abbrev-commit --parents --no-merges --format=%h%n%p%n%s";
         String CSid = null;
-        String tmpP = null;
+        String parent = null;
         String message = null;
         String err = null;
+        ChangeSet CS =null;
+
         try
         {
             Process p = Runtime.getRuntime().exec(cmd1);
@@ -103,26 +106,21 @@ public class Git {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             while ((CSid = stdInput.readLine()) != null)
             {
+                CS=new ChangeSet(CSid);
+
                 System.out.println("CS="+CSid);
 
-                if ((tmpP = stdInput.readLine()) !=null)
+
+                if ((parent = stdInput.readLine()) !=null)
                 {
-                    String[] parents;
-                    parents=tmpP.split(" ");
-                    for (int i =0; i<parents.length; i++)
-                    {
-                        System.out.println("\t p="+parents[i]);
-                    }
-                    if (parents.length>1)
-                    {
-                        // should not detect pull feeds here
-                        System.out.println("\t\t pull feed");
-                    }
+                        System.out.println("\t parent="+parent);
+                        CS.addPreviousChgSet(parent);
                 }
 
                 if ((message = stdInput.readLine()) !=null)
                 {
-                    System.out.println("\t m="+message);
+                    System.out.println("\t message="+message);
+                    CS.setMessage(message);
                 }
             }
 
@@ -131,6 +129,7 @@ public class Git {
                 System.out.print("Error :");
                 System.out.println(err);
             }
+            J.addChangeSet(CS);
         }
         catch (IOException ex)
         {
@@ -138,13 +137,16 @@ public class Git {
         }
     }
 
-        public void gitLogMerge()
+    public void gitLogMerge(Jena J)
     {
         String cmd1="git log --abbrev-commit --parents --merges --format=%h%n%p%n%s";
         String CSid = null;
         String tmpP = null;
         String message = null;
         String err = null;
+        ChangeSet CS = null;
+        Site S = null;
+        int count1=0,count2=0;
         try
         {
             Process p = Runtime.getRuntime().exec(cmd1);
@@ -152,7 +154,8 @@ public class Git {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             while ((CSid = stdInput.readLine()) != null)
             {
-                System.out.println("CS="+CSid);
+                //System.out.println("CS="+CSid);
+                CS=new ChangeSet(CSid);
 
                 if ((tmpP = stdInput.readLine()) !=null)
                 {
@@ -160,26 +163,41 @@ public class Git {
                     parents=tmpP.split(" ");
                     for (int i =0; i<parents.length; i++)
                     {
-                        System.out.println("\t p="+parents[i]);
-                    }
-                    if (parents.length>1)
-                    {
-                        //should detect pull feed from parent[1] site
-                        System.out.println("\t\t pull feed");
+                        //System.out.println("\t p="+parents[i]);
+                        CS.addPreviousChgSet(parents[i]);
                     }
                 }
 
                 if ((message = stdInput.readLine()) !=null)
                 {
-                    System.out.println("\t m="+message);
+                    count1++;
+                    CS.setMessage(message);
+                    //System.out.println("\t m="+message);
+                    //Pattern pat = Pattern.compile("'\\S+'");
+                    Pattern pat = Pattern.compile("git://\\S+");
+                    
+                    Matcher m = pat.matcher(message);
+                    while (m.find())
+                    {
+                        count2++;
+                        String site=m.group();
+                        S = new Site(site);
+                        //site=site.substring(1, site.length());
+                        //site=site.substring(0, site.length() - 1);
+                        J.addSite(S);
+                        System.out.println("found site : "+site);
+                    }
+
                 }
             }
+            System.out.println("count1= "+count1+"\tcount2= "+count2);
 
             while ((err = stdError.readLine()) != null)
             {
                 System.out.print("Error :");
                 System.out.println(err);
             }
+            J.addChangeSet(CS);
         }
         catch (IOException ex)
         {

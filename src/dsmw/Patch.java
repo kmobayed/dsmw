@@ -2,7 +2,8 @@
 
 package dsmw;
 
-import java.util.Collection;
+import java.util.ArrayList;
+
 
 /**
  *
@@ -10,7 +11,7 @@ import java.util.Collection;
  */
 public class Patch {
 private String patchID;
-private Collection<Operation> operations;
+private ArrayList<Operation> operations;
 private Boolean published;
 private Document doc;
 private Patch previous;
@@ -67,11 +68,11 @@ public Patch(String id, Document mydoc, Patch prev, Boolean p) {
     }
 
 
-    public Collection<Operation> getOperations() {
+    public ArrayList<Operation> getOperations() {
         return operations;
     }
 
-    public void setOperations(Collection<Operation> operations) {
+    public void setOperations(ArrayList<Operation> operations) {
         this.operations = operations;
     }
 

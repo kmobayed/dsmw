@@ -1,7 +1,7 @@
 
 package dsmw;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  *
@@ -9,14 +9,16 @@ import java.util.Collection;
  */
 public class ChangeSet {
     private String chgSetID;
-    private Collection<Patch> patches;
+    private ArrayList<Patch> patches;
     private PushFeed inPushFeed;
     private PullFeed inPullFeed;
-    private Collection<ChangeSet> previousChgSet;
+    private ArrayList<String> previousChgSetID;
     private String diff;
+    private String message;
 
     public ChangeSet(String id) {
         chgSetID =id;
+        previousChgSetID= new ArrayList<String>();
     }
 
     public ChangeSet() {
@@ -28,12 +30,12 @@ public class ChangeSet {
         inPushFeed =pu;
     }
 
-    public Collection<ChangeSet> getPreviousChgSet() {
-        return previousChgSet;
+    public ArrayList<String> getPreviousChgSet() {
+        return previousChgSetID;
     }
 
-    public void addPreviousChgSet(ChangeSet previousChgSet) {
-        this.previousChgSet.add(previousChgSet);
+    public void addPreviousChgSet(String previousChgSet) {
+        this.previousChgSetID.add(previousChgSet);
     }
 
 
@@ -47,6 +49,14 @@ public class ChangeSet {
 
     public String getDiff() {
         return diff;
+    }
+
+    public void setMessage(String str) {
+        message=str;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public void setChgSetID(String chgSetID) {
@@ -69,16 +79,16 @@ public class ChangeSet {
         this.inPushFeed = inPushFeed;
     }
 
-    public Collection<Patch> getPatches() {
+    public ArrayList<Patch> getPatches() {
         return patches;
     }
 
-    public void setPatches(Collection<Patch> patches) {
+    public void setPatches(ArrayList<Patch> patches) {
         this.patches = patches;
     }
 
 
-//public void push(Collection<Patch> patches, Document doc) {
+//public void push(ArrayList<Patch> patches, Document doc) {
 //
 //    // push patches and make them as published
 //    for (Patch a : patches)
