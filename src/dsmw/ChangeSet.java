@@ -12,10 +12,15 @@ public class ChangeSet {
     private Collection<Patch> patches;
     private PushFeed inPushFeed;
     private PullFeed inPullFeed;
-    private ChangeSet previousChgSet;
+    private Collection<ChangeSet> previousChgSet;
+    private String diff;
 
     public ChangeSet(String id) {
         chgSetID =id;
+    }
+
+    public ChangeSet() {
+        chgSetID ="";
     }
 
     public ChangeSet(String id, PushFeed pu) {
@@ -23,17 +28,25 @@ public class ChangeSet {
         inPushFeed =pu;
     }
 
-    public ChangeSet getPreviousChgSet() {
+    public Collection<ChangeSet> getPreviousChgSet() {
         return previousChgSet;
     }
 
-    public void setPreviousChgSet(ChangeSet previousChgSet) {
-        this.previousChgSet = previousChgSet;
+    public void addPreviousChgSet(ChangeSet previousChgSet) {
+        this.previousChgSet.add(previousChgSet);
     }
 
 
     public String getChgSetID() {
         return chgSetID;
+    }
+
+    public void setDiff(String df) {
+        diff=df;
+    }
+
+    public String getDiff() {
+        return diff;
     }
 
     public void setChgSetID(String chgSetID) {
@@ -63,18 +76,20 @@ public class ChangeSet {
     public void setPatches(Collection<Patch> patches) {
         this.patches = patches;
     }
-public void push(Collection<Patch> patches, Document doc) {
 
-    // push patches and make them as published
-    for (Patch a : patches)
-     if (!a.getPublished())
-         if (a.getDoc().getDocID().equals(doc.getDocID())) {
-           this.patches.add(a);
-           a.setPublished(Boolean.TRUE);
-         } 
-  this.getInPushFeed().setHasPushHead(this);
-  this.setPreviousChgSet(this.getInPushFeed().getHasPushHead());
 
-}
+//public void push(Collection<Patch> patches, Document doc) {
+//
+//    // push patches and make them as published
+//    for (Patch a : patches)
+//     if (!a.getPublished())
+//         if (a.getDoc().getDocID().equals(doc.getDocID())) {
+//           this.patches.add(a);
+//           a.setPublished(Boolean.TRUE);
+//         }
+//  this.getInPushFeed().setHasPushHead(this);
+//  this.setPreviousChgSet(this.getInPushFeed().getHasPushHead());
+//
+//}
 
 }

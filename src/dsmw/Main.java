@@ -24,9 +24,16 @@ public class Main {
         }
 
 
-        Git G = new Git("/usr/bin/");
-        G.getVersion();
-        G.getLog();
+          Git G = new Git("/Users/klm/code/project2");
+//         G.getVersion();
+//        G.getLog();
+        //String cs=G.gitGetFirstCS();
+        G.gitLogNoMerge();
+        G.gitLogMerge();
+
+        //System.out.println("1st CS= "+cs);
+        //System.out.println(G.gitGetCSdata(cs).getChgSetID());
+
 
 //        String page="http://en.wikipedia.org/w/";
 //        Wikipedia W= new Wikipedia(page);

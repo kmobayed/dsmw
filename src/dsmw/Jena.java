@@ -101,7 +101,13 @@ public class Jena {
     public void addChangeSet(ChangeSet C)
     {
         this.addStatement(dsmwUri+C.getChgSetID(), rdfUri+"type", dsmwUri+"ChangeSet");
-        this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChgSet", dsmwUri+C.getPreviousChgSet().getChgSetID());
+        Iterator iterator1 = C.getPreviousChgSet().iterator();
+        while(iterator1.hasNext()){
+            ChangeSet PCS = (ChangeSet) iterator1.next();
+            this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChgSet", dsmwUri+PCS.getChgSetID());
+        }
+
+
         if (!C.getInPullFeed().getPullFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPullFeed", dsmwUri+C.getInPullFeed().getPullFeedID());
         if (!C.getInPushFeed().getPushFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPushFeed", dsmwUri+C.getInPushFeed().getPushFeedID());
         

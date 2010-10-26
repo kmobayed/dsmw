@@ -56,9 +56,9 @@ public PullFeed(String id, PushFeed r) {
     }
 
     public ChangeSet get(ChangeSet c) {
-    if (this.getRelatedPushFeed().getPushFeedID().equals(c.getInPushFeed().getPushFeedID()))
-        if (c.getPreviousChgSet() != null)
-            return c.getPreviousChgSet();
+//    if (this.getRelatedPushFeed().getPushFeedID().equals(c.getInPushFeed().getPushFeedID()))
+//        if (c.getPreviousChgSet() != null)
+//            return c.getPreviousChgSet();
     return null;
 }
     public void pull() {
