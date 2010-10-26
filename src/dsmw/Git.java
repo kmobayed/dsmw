@@ -108,18 +108,18 @@ public class Git {
             {
                 CS=new ChangeSet(CSid);
 
-                System.out.println("CS="+CSid);
+                //System.out.println("CS="+CSid);
 
 
                 if ((parent = stdInput.readLine()) !=null)
                 {
-                        System.out.println("\t parent="+parent);
+                        //System.out.println("\t parent="+parent);
                         CS.addPreviousChgSet(parent);
                 }
 
                 if ((message = stdInput.readLine()) !=null)
                 {
-                    System.out.println("\t message="+message);
+                //    System.out.println("\t message="+message);
                     CS.setMessage(message);
                 }
             }
@@ -146,6 +146,7 @@ public class Git {
         String err = null;
         ChangeSet CS = null;
         Site S = null;
+        PullFeed PF = null;
         int count1=0,count2=0;
         try
         {
@@ -185,12 +186,16 @@ public class Git {
                         //site=site.substring(1, site.length());
                         //site=site.substring(0, site.length() - 1);
                         J.addSite(S);
-                        System.out.println("found site : "+site);
+                        //System.out.println("found site : "+S.getSiteID());
                     }
-
+                    
+                    PF= new PullFeed(CS.getChgSetID());
+                    PF.setHeadPullFeed(CS.getChgSetID());
+                    PF.setSite(S.getSiteID());
+                    J.addPullFeed(PF);
                 }
             }
-            System.out.println("count1= "+count1+"\tcount2= "+count2);
+            System.out.println("found "+count1+" merged CS and "+count2+" sites");
 
             while ((err = stdError.readLine()) != null)
             {

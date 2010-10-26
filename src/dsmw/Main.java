@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 package dsmw;
 
@@ -30,7 +27,7 @@ public class Main {
 //         G.getVersion();
 //        G.getLog();
         //String cs=G.gitGetFirstCS();
-        G.gitLogNoMerge(J);
+        //G.gitLogNoMerge(J);
         G.gitLogMerge(J);
 
         //System.out.println("1st CS= "+cs);

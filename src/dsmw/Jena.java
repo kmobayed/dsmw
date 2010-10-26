@@ -13,7 +13,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
-import java.util.Iterator;
 
 
 /**
@@ -60,20 +59,6 @@ public class Jena {
     public void addSite(Site S)
     {
         this.addStatement(dsmwUri+S.getSiteID(), rdfUri+"type", dsmwUri+"WikiSite");
-        
-//        Iterator iterator1 = S.getPushs().iterator();
-//        while(iterator1.hasNext()){
-//            PushFeed PF1 = (PushFeed) iterator1.next();
-//            this.addStatement(dsmwUri+S.getSiteID(), dsmwUri+"hasPush", dsmwUri+PF1.getPushFeedID());
-//        }
-//
-//        Iterator iterator2 = S.getPulls().iterator();
-//        while(iterator2.hasNext()){
-//            PullFeed PF2 = (PullFeed) iterator2.next();
-//            this.addStatement(dsmwUri+S.getSiteID(), dsmwUri+"hasPull", dsmwUri+PF2.getPullFeedID());
-//        }
-
-
     }
 
     public void addDocument(Document D)
@@ -101,24 +86,21 @@ public class Jena {
     public void addChangeSet(ChangeSet C)
     {
         this.addStatement(dsmwUri+C.getChgSetID(), rdfUri+"type", dsmwUri+"ChangeSet");
-        Iterator iterator1 = C.getPreviousChgSet().iterator();
-        while(iterator1.hasNext()){
-            ChangeSet PCS = (ChangeSet) iterator1.next();
-            this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChgSet", dsmwUri+PCS.getChgSetID());
+        for(Object object : C.getPreviousChgSet())
+        {
+            String PCS = (String) object;
+            this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChgSet", dsmwUri+PCS);
         }
-
-
-        if (!C.getInPullFeed().getPullFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPullFeed", dsmwUri+C.getInPullFeed().getPullFeedID());
-        if (!C.getInPushFeed().getPushFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPushFeed", dsmwUri+C.getInPushFeed().getPushFeedID());
-        
+//        if (!C.getInPullFeed().getPullFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPullFeed", dsmwUri+C.getInPullFeed().getPullFeedID());
+//        if (!C.getInPushFeed().getPushFeedID().isEmpty()) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPushFeed", dsmwUri+C.getInPushFeed().getPushFeedID());       
     }
 
     public void addPullFeed(PullFeed PF)
     {
         this.addStatement(dsmwUri+PF.getPullFeedID(), rdfUri+"type", dsmwUri+"PullFeed");
-        this.addStatement(dsmwUri+PF.getPullFeedID(), dsmwUri+"hasPullHead", dsmwUri+PF.getHeadPullFeed().getChgSetID());
-        this.addStatement(dsmwUri+PF.getPullFeedID(), dsmwUri+"hasRelatedPush", dsmwUri+PF.getRelatedPushFeed().getPushFeedID());
-        this.addStatement(dsmwUri+PF.getSite().getSiteID(), dsmwUri+"hasPull", dsmwUri+PF.getPullFeedID());
+        this.addStatement(dsmwUri+PF.getPullFeedID(), dsmwUri+"hasPullHead", dsmwUri+PF.getHeadPullFeed());
+      //  this.addStatement(dsmwUri+PF.getPullFeedID(), dsmwUri+"hasRelatedPush", dsmwUri+PF.getRelatedPushFeed().getPushFeedID());
+        this.addStatement(dsmwUri+PF.getSite(), dsmwUri+"hasPull", dsmwUri+PF.getPullFeedID());
 
     }
 
@@ -152,7 +134,7 @@ public class Jena {
         {
                 QuerySolution binding1 = rs1.nextSolution();
             Resource patch1=((Resource) binding1.get("site"));
-            System.out.print(patch1.getLocalName()+"\n");
+            System.out.print(patch1.getURI()+"\n");
         }
     }
     public void listStatements()

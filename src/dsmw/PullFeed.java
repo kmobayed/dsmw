@@ -9,8 +9,8 @@ package dsmw;
 public class PullFeed {
 private String pullFeedID;
 private PushFeed relatedPushFeed;
-private ChangeSet headPullFeed;
-private Site site;
+private String headID;
+private String siteID;
 
 public PullFeed(String id) {
     pullFeedID = id;
@@ -21,12 +21,12 @@ public PullFeed(String id, PushFeed r) {
     relatedPushFeed = r;
 }
 
-    public ChangeSet getHeadPullFeed() {
-        return headPullFeed;
+    public String getHeadPullFeed() {
+        return headID;
     }
 
-    public void setHeadPullFeed(ChangeSet headPullFeed) {
-        this.headPullFeed = headPullFeed;
+    public void setHeadPullFeed(String headPullFeed) {
+        this.headID = headPullFeed;
     }
 
     public PushFeed getRelatedPushFeed() {
@@ -37,14 +37,14 @@ public PullFeed(String id, PushFeed r) {
         this.relatedPushFeed = relatedPushFeed;
     }
 
-    public void setSite(Site S)
+    public void setSite(String S)
     {
-        site=S;
+        siteID=S;
     }
 
-    public Site getSite()
+    public String getSite()
     {
-        return site;
+        return siteID;
     }
 
     public String getPullFeedID() {
@@ -60,15 +60,7 @@ public PullFeed(String id, PushFeed r) {
 //        if (c.getPreviousChgSet() != null)
 //            return c.getPreviousChgSet();
     return null;
-}
-    public void pull() {
-
-
-  //      while (this.get(headPullFeed)!= null)
-          //  if (this.get(headPullFeed).getChgSetID().equals(this.getRelatedPushFeed().))
-
-        
-
     }
+    
 }
 
