@@ -4,7 +4,9 @@ package dsmw;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -20,20 +22,6 @@ public class Git {
     Git(String bin)
     {
         GitFolder = bin;
-        String err = null;
-        String cmd = "cd " + GitFolder;
-        try {
-
-            Process p = Runtime.getRuntime().exec(cmd);
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            while ((err = stdError.readLine()) != null) {
-                System.out.print("Error :");
-                System.out.println(err);
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
 /**
@@ -92,10 +80,11 @@ public class Git {
 
     public void gitLogNoMerge(Jena J)
     {
-        String cmd1="git log --abbrev-commit --parents --no-merges --format=%h%n%p%n%s";
+        String cmd1="git log --abbrev-commit --parents --no-merges --format=%h%n%p%n%s%n%ci";
         String CSid = null;
         String parent = null;
         String message = null;
+        String date=null;
         String err = null;
         ChangeSet CS =null;
 
@@ -106,22 +95,30 @@ public class Git {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             while ((CSid = stdInput.readLine()) != null)
             {
-                CS=new ChangeSet(CSid);
-
-                //System.out.println("CS="+CSid);
-
-
+                CS=new ChangeSet("CS"+CSid);
                 if ((parent = stdInput.readLine()) !=null)
                 {
-                        //System.out.println("\t parent="+parent);
-                        CS.addPreviousChgSet(parent);
+                        if ((!parent.isEmpty())) CS.addPreviousChgSet("CS"+parent);
                 }
 
                 if ((message = stdInput.readLine()) !=null)
                 {
-                //    System.out.println("\t message="+message);
                     CS.setMessage(message);
                 }
+                if ((date = stdInput.readLine()) !=null)
+                {
+                    Date D;
+                    try {
+                        D = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(date);
+                        date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
+                        CS.setDate(date);
+                    } catch (ParseException ex) {
+                        Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                   
+                }
+                J.addChangeSet(CS);
             }
 
             while ((err = stdError.readLine()) != null)
@@ -129,7 +126,7 @@ public class Git {
                 System.out.print("Error :");
                 System.out.println(err);
             }
-            J.addChangeSet(CS);
+            
         }
         catch (IOException ex)
         {
@@ -139,15 +136,16 @@ public class Git {
 
     public void gitLogMerge(Jena J)
     {
-        String cmd1="git log --abbrev-commit --parents --merges --format=%h%n%p%n%s";
+        String cmd1="git log --abbrev-commit --parents --merges --format=%h%n%p%n%s%n%ci";
         String CSid = null;
         String tmpP = null;
         String message = null;
+        String date = null;
         String err = null;
         ChangeSet CS = null;
         Site S = null;
         PullFeed PF = null;
-        int count1=0,count2=0;
+ 
         try
         {
             Process p = Runtime.getRuntime().exec(cmd1);
@@ -155,8 +153,15 @@ public class Git {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             while ((CSid = stdInput.readLine()) != null)
             {
-                //System.out.println("CS="+CSid);
-                CS=new ChangeSet(CSid);
+                CS=new ChangeSet("CS"+CSid);
+
+                String site="S"+CS.getChgSetID();
+                S = new Site(site);
+                J.addSite(S);
+                PF= new PullFeed("PF"+CS.getChgSetID());
+                PF.setHeadPullFeed(CS.getChgSetID());
+                PF.setSite(S.getSiteID());
+                J.addPullFeed(PF);
 
                 if ((tmpP = stdInput.readLine()) !=null)
                 {
@@ -164,45 +169,34 @@ public class Git {
                     parents=tmpP.split(" ");
                     for (int i =0; i<parents.length; i++)
                     {
-                        //System.out.println("\t p="+parents[i]);
-                        CS.addPreviousChgSet(parents[i]);
+                        CS.addPreviousChgSet("CS"+parents[i]);
                     }
                 }
-
                 if ((message = stdInput.readLine()) !=null)
                 {
-                    count1++;
-                    CS.setMessage(message);
-                    //System.out.println("\t m="+message);
-                    //Pattern pat = Pattern.compile("'\\S+'");
-                    Pattern pat = Pattern.compile("git://\\S+");
-                    
-                    Matcher m = pat.matcher(message);
-                    while (m.find())
-                    {
-                        count2++;
-                        String site=m.group();
-                        S = new Site(site);
-                        //site=site.substring(1, site.length());
-                        //site=site.substring(0, site.length() - 1);
-                        J.addSite(S);
-                        //System.out.println("found site : "+S.getSiteID());
-                    }
-                    
-                    PF= new PullFeed(CS.getChgSetID());
-                    PF.setHeadPullFeed(CS.getChgSetID());
-                    PF.setSite(S.getSiteID());
-                    J.addPullFeed(PF);
+                  CS.setMessage(message);
                 }
-            }
-            System.out.println("found "+count1+" merged CS and "+count2+" sites");
+                if ((date = stdInput.readLine()) !=null)
+                {
+                    Date D;
+                    try {
+                        D = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(date);
+                        date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
+                        CS.setDate(date);
+                    } catch (ParseException ex) {
+                        Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
+
+                }
+                J.addChangeSet(CS);
+            }
             while ((err = stdError.readLine()) != null)
             {
                 System.out.print("Error :");
                 System.out.println(err);
             }
-            J.addChangeSet(CS);
+            
         }
         catch (IOException ex)
         {

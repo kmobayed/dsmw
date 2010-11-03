@@ -5,6 +5,8 @@ package dsmw;
 
 import edu.nyu.cs.javagit.api.JavaGitException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  *
@@ -24,31 +26,27 @@ public class Main {
         String ontoFile = "file:"+args[1];
         Git G = new Git("/Users/klm/code/project2");
         Jena J= new Jena(DBdirectory,ontoFile);
-//         G.getVersion();
-//        G.getLog();
-        //String cs=G.gitGetFirstCS();
-        //G.gitLogNoMerge(J);
-        G.gitLogMerge(J);
 
-        //System.out.println("1st CS= "+cs);
-        //System.out.println(G.gitGetCSdata(cs).getChgSetID());
+       G.gitLogNoMerge(J);
+       G.gitLogMerge(J);
 
 
-//        String page="http://en.wikipedia.org/w/";
-//        Wikipedia W= new Wikipedia(page);
-//        W.getPage();
-//
-//        
-//
-//        Site MySite = new Site("Site1");
-//
-//        
-//
-//        J.addSite(MySite);
-//
         J.listSites();
-//        //System.out.println("===========");
-//        //J.listStatements();
+        System.out.println("===========");
+        J.listStatements();
+        System.out.println("===========");
+        ChangeSet CH=J.getFirstCS();
+        System.out.println(CH.getChgSetID()+"\n"+CH.getDate());
+        System.out.println(J.getNextCS(CH.getChgSetID()).getChgSetID());
+        System.out.println(J.getNextCS("CS665cd66"));
+
+        Date D=new Date();
+        ArrayList <ChangeSet> AL=new ArrayList <ChangeSet>();
+        AL=J.getNextCSbetween2Dates(D, D);
+        for (ChangeSet o : AL)
+        {
+            System.out.println(o.getChgSetID()+"\t"+o.getDate());
+        }
         J.close();
     }
 

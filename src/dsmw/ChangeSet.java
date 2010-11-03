@@ -15,6 +15,7 @@ public class ChangeSet {
     private ArrayList<String> previousChgSetID;
     private String diff;
     private String message;
+    private String date;
 
     public ChangeSet(String id) {
         chgSetID =id;
@@ -57,6 +58,14 @@ public class ChangeSet {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setDate(String str) {
+        date=str;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public void setChgSetID(String chgSetID) {
