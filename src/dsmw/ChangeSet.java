@@ -39,6 +39,15 @@ public class ChangeSet {
         this.previousChgSetID.add(previousChgSet);
     }
 
+    public void print()
+    {
+            System.out.print("ID= "+chgSetID);
+            for (String p:previousChgSetID)
+            {
+                System.out.print("\t previous= "+p);
+            }
+            System.out.print("\t date= "+date);
+    }
 
     public String getChgSetID() {
         return chgSetID;

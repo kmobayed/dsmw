@@ -3,10 +3,11 @@
 package dsmw;
 
 
-import edu.nyu.cs.javagit.api.JavaGitException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -14,7 +15,7 @@ import java.util.Date;
  */
 public class Main {
 
-        public static void main( String[] args ) throws JavaGitException, IOException, Exception
+        public static void main( String[] args ) throws IOException, Exception
     {
         if (args.length<2)
         {
@@ -26,27 +27,48 @@ public class Main {
         String ontoFile = "file:"+args[1];
         Git G = new Git("/Users/klm/code/project2");
         Jena J= new Jena(DBdirectory,ontoFile);
-
-       G.gitLogNoMerge(J);
-       G.gitLogMerge(J);
+        
+        G.gitLog(J);
 
 
         J.listSites();
         System.out.println("===========");
         J.listStatements();
         System.out.println("===========");
-        ChangeSet CH=J.getFirstCS();
-        System.out.println(CH.getChgSetID()+"\n"+CH.getDate());
-        System.out.println(J.getNextCS(CH.getChgSetID()).getChgSetID());
-        System.out.println(J.getNextCS("CS665cd66"));
 
-        Date D=new Date();
-        ArrayList <ChangeSet> AL=new ArrayList <ChangeSet>();
-        AL=J.getNextCSbetween2Dates(D, D);
-        for (ChangeSet o : AL)
+        ChangeSet CH=J.getFirstCS();
+        System.out.print("First CS: ");
+        CH.print();
+        System.out.println();
+
+        ArrayList <ChangeSet> AL1=new ArrayList <ChangeSet>();
+        AL1=J.getNextCS(CH.getChgSetID());
+        System.out.println("Second CSs?: ");
+        for (ChangeSet o:AL1)
         {
-            System.out.println(o.getChgSetID()+"\t"+o.getDate());
+            o.print();
+            System.out.println();
         }
+
+        AL1=J.getNextCS("CS665cd66");
+        for (ChangeSet o:AL1)
+        {
+            System.out.println("Next to Last? ");
+            o.print();
+            System.out.println();
+        }
+        
+        Date D=new Date();
+        ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
+        AL2=J.getCStillDate(D);
+        System.out.println("ChangeSets generated before " + D.toString());
+        for (ChangeSet o : AL2)
+        {
+            o.print();
+            System.out.println();
+
+        }
+        
         J.close();
     }
 

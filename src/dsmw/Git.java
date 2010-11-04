@@ -5,8 +5,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -76,7 +78,7 @@ public class Git {
 
         //}
     }
- */
+ 
 
     public void gitLogNoMerge(Jena J)
     {
@@ -109,14 +111,16 @@ public class Git {
                 {
                     Date D;
                     try {
-                        D = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(date);
-                        date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
+                        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+                        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        D = sdf1.parse(date);
+                        SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                        sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        date = sdf2.format(D);
                         CS.setDate(date);
                     } catch (ParseException ex) {
                         Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
-                   
                 }
                 J.addChangeSet(CS);
             }
@@ -133,10 +137,11 @@ public class Git {
             Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+*/
 
-    public void gitLogMerge(Jena J)
+    public void gitLog(Jena J)
     {
-        String cmd1="git log --abbrev-commit --parents --merges --format=%h%n%p%n%s%n%ci";
+        String cmd1="git log --abbrev-commit --parents  --format=%h%n%p%n%s%n%ci";
         String CSid = null;
         String tmpP = null;
         String message = null;
@@ -145,6 +150,7 @@ public class Git {
         ChangeSet CS = null;
         Site S = null;
         PullFeed PF = null;
+        Integer count=0;
  
         try
         {
@@ -153,25 +159,32 @@ public class Git {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             while ((CSid = stdInput.readLine()) != null)
             {
+                count++;
                 CS=new ChangeSet("CS"+CSid);
-
-                String site="S"+CS.getChgSetID();
-                S = new Site(site);
-                J.addSite(S);
-                PF= new PullFeed("PF"+CS.getChgSetID());
-                PF.setHeadPullFeed(CS.getChgSetID());
-                PF.setSite(S.getSiteID());
-                J.addPullFeed(PF);
-
+                J.addLiteralStatement(J.dsmwUri+CS.getChgSetID(), J.dsmwUri+"id", count.toString());
+                
                 if ((tmpP = stdInput.readLine()) !=null)
                 {
                     String[] parents;
                     parents=tmpP.split(" ");
                     for (int i =0; i<parents.length; i++)
                     {
-                        CS.addPreviousChgSet("CS"+parents[i]);
+                        if ((!parents[i].isEmpty())) CS.addPreviousChgSet("CS"+parents[i]);
+                    }
+
+                    if (parents.length>1)
+                    {
+                        String site="S"+CS.getChgSetID();
+                        S = new Site(site);
+                        J.addSite(S);
+                        PF= new PullFeed("PF"+CS.getChgSetID());
+                        PF.setHeadPullFeed(CS.getChgSetID());
+                        PF.setSite(S.getSiteID());
+                        J.addPullFeed(PF);
                     }
                 }
+
+
                 if ((message = stdInput.readLine()) !=null)
                 {
                   CS.setMessage(message);
@@ -180,14 +193,16 @@ public class Git {
                 {
                     Date D;
                     try {
-                        D = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(date);
-                        date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
+                        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+                        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        D = sdf1.parse(date);
+                        SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                        sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        date = sdf2.format(D);
                         CS.setDate(date);
                     } catch (ParseException ex) {
                         Logger.getLogger(Git.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
-
                 }
                 J.addChangeSet(CS);
             }

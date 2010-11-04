@@ -6,6 +6,8 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -44,7 +46,7 @@ public class Jena {
         DBdirectory=DB;
         ontoFile=onto;
         data = TDBFactory.createModel(DBdirectory);
-        //data.read(ontoFile,"RDF/XML");
+        data.read(ontoFile,"RDF/XML");
     }
 
     public void close()
@@ -60,6 +62,18 @@ public class Jena {
       Statement st=data.createStatement(subject,predicate,object);
       data.add(st);
     }
+
+
+    public void addLiteralStatement(String s, String p, String o)
+    {
+      Resource subject=data.createResource(s);
+      Property predicate = data.createProperty(p);
+      Literal object=data.createLiteral(o);
+      Statement st=data.createStatement(subject, predicate, object);
+      data.add(st);
+    }
+
+
 
     public void addSite(Site S)
     {
@@ -96,7 +110,7 @@ public class Jena {
             String PCS = (String) object;
             if ((!PCS.isEmpty())) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChangeSet", dsmwUri+PCS);
         }
-        this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", "\""+C.getDate()+"\""); //  ^^"+xsdUri+"dateTime");
+        this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", C.getDate()); //xsdUri+"dateTime");
     }
 
     public void addPullFeed(PullFeed PF)
@@ -181,16 +195,17 @@ public class Jena {
         {
             QuerySolution binding1 = rs1.nextSolution();
             Resource chgSet=((Resource) binding1.get("cs"));
-            Resource chgSetdate=((Resource) binding1.get("date"));
+            Literal chgSetdate=((Literal) binding1.get("date"));
             CS=new ChangeSet(chgSet.getLocalName());
             CS.setDate(chgSetdate.toString());
         }
         return CS;
     }
 
-    public ChangeSet getNextCS(String CS)
+    public ArrayList <ChangeSet> getNextCS(String CS)
     {
-        ChangeSet NCS=null;
+        ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
+        ChangeSet CSTmp=null;
         String query1;
         QueryExecution qe1;
         query1=queryPrefix +
@@ -204,46 +219,60 @@ public class Jena {
         {
             QuerySolution binding1 = rs1.nextSolution();
             Resource chgSet=((Resource) binding1.get("cs"));
-            Resource chgSetdate=((Resource) binding1.get("date"));
+            Literal chgSetdate=((Literal) binding1.get("date"));
             
-            NCS=new ChangeSet (chgSet.getLocalName());
-            NCS.addPreviousChgSet(CS);
-            NCS.setDate(chgSetdate.toString());
-
+            CSTmp=new ChangeSet (chgSet.getLocalName());
+            CSTmp.addPreviousChgSet(CS);
+            CSTmp.setDate(chgSetdate.toString());
+            NCS.add(CSTmp);
         }
         return NCS;
     }
 
 
-    public ArrayList <ChangeSet> getNextCSbetween2Dates(Date D1, Date D2)
+    public ArrayList <ChangeSet> getCStillDate(Date D)
     {
         ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
         ChangeSet CS;
         String query1;
-        String date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D1);
+        String date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
         QueryExecution qe1;
         query1=queryPrefix +
-			"SELECT DISTINCT ?cs ?date ?pcs WHERE { "
-			+"{?cs a MS2W:ChangeSet . "
-                        +" ?cs MS2W:previousChangeSet ?pcs . "
-                        +" ?cs MS2W:date ?date . }"
-                     //   +" FILTER (?date < \""+date +"\"^^xsd:dateTime )"
+			"SELECT ?cs ?id ?date WHERE { "
+			+" ?cs a MS2W:ChangeSet . "
+                        +" ?cs MS2W:date ?date . "
+                        +" ?cs MS2W:id ?id . "
+//                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
+                        +" FILTER ( xsd:dateTime(?date) < \"" +date+ "\"^^xsd:dateTime )"
 			+" }";
         System.out.println(query1);
-        qe1 = QueryExecutionFactory.create(query1, data);
+
+        qe1 = QueryExecutionFactory.create(query1, com.hp.hpl.jena.query.Syntax.syntaxARQ, data);
         for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
         {
             QuerySolution binding1 = rs1.nextSolution();
             Resource chgSet=((Resource) binding1.get("cs"));
-            Resource chgSetdate=((Resource) binding1.get("date"));
-            Resource chgSetPrev=((Resource) binding1.get("pcs"));
+            Literal chgSetdate=((Literal) binding1.get("date"));
 
+            RDFNode rdfN=  binding1.get("id");
+            if (rdfN.isLiteral())
+            {
+                Literal chgSetid = ((Literal) rdfN);
+                System.out.print(chgSetid.toString()+"\n");
+            }
             CS=new ChangeSet (chgSet.getLocalName());
-            CS.addPreviousChgSet(chgSetPrev.getLocalName());
             CS.setDate(chgSetdate.toString());
+            
+            if ((Resource) binding1.get("pcs")!=null)
+            {
+                Resource chgSetPrev = ((Resource) binding1.get("pcs"));
+                CS.addPreviousChgSet(chgSetPrev.getLocalName());
+            }
+            
             NCS.add(CS);
 
         }
+        qe1.close();
         return NCS;
     }
     
