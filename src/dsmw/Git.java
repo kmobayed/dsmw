@@ -161,7 +161,6 @@ public class Git {
             {
                 count++;
                 CS=new ChangeSet("CS"+CSid);
-                J.addLiteralStatement(J.dsmwUri+CS.getChgSetID(), J.dsmwUri+"id", count.toString());
                 
                 if ((tmpP = stdInput.readLine()) !=null)
                 {

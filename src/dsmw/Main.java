@@ -28,26 +28,28 @@ public class Main {
         Git G = new Git("/Users/klm/code/project2");
         Jena J= new Jena(DBdirectory,ontoFile);
         
-        G.gitLog(J);
+//        G.gitLog(J);
 
 
         J.listSites();
         System.out.println("===========");
-        J.listStatements();
-        System.out.println("===========");
+//        J.listStatements();
+//        System.out.println("===========");
 
-        ChangeSet CH=J.getFirstCS();
+        ChangeSet FCS=J.getFirstCS();
         System.out.print("First CS: ");
-        CH.print();
-        System.out.println();
+        FCS.print();
+
+        String site="S"+FCS.getChgSetID();
+        Site S = new Site(site);
+        J.addSite(S);
 
         ArrayList <ChangeSet> AL1=new ArrayList <ChangeSet>();
-        AL1=J.getNextCS(CH.getChgSetID());
+        AL1=J.getNextCS(FCS.getChgSetID());
         System.out.println("Second CSs?: ");
         for (ChangeSet o:AL1)
         {
             o.print();
-            System.out.println();
         }
 
         AL1=J.getNextCS("CS665cd66");
@@ -55,7 +57,6 @@ public class Main {
         {
             System.out.println("Next to Last? ");
             o.print();
-            System.out.println();
         }
         
         Date D=new Date();
@@ -65,8 +66,6 @@ public class Main {
         for (ChangeSet o : AL2)
         {
             o.print();
-            System.out.println();
-
         }
         
         J.close();

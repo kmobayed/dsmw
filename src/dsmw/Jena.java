@@ -1,7 +1,6 @@
 
 package dsmw;
 
-
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -36,9 +35,9 @@ public class Jena {
     public static final String foafUri = "http://xmlns.com/foaf/0.1/";
     public static final String queryPrefix ="prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 			+"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-                        +"prefix xsd: <http://www.w3.org/2001/XMLSchema#>"
-                        +"prefix owl: <http://www.w3.org/2001/XMLSchema#>"
-                        +"prefix foaf: <http://xmlns.com/foaf/0.1/>"
+                        +"prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+                        +"prefix owl: <http://www.w3.org/2001/XMLSchema#> "
+                        +"prefix foaf: <http://xmlns.com/foaf/0.1/> "
 			+"prefix MS2W: <http://www.semanticweb.org/ontologies/2009/4/MS2W.owl#> ";
 
     public Jena(String DB, String onto)
@@ -46,12 +45,12 @@ public class Jena {
         DBdirectory=DB;
         ontoFile=onto;
         data = TDBFactory.createModel(DBdirectory);
-        data.read(ontoFile,"RDF/XML");
+        //data.read(ontoFile,"RDF/XML");
     }
 
     public void close()
     {
-      data.close(); 
+        data.close();
     }
 
     public void addStatement(String s, String p, String o)
@@ -110,7 +109,7 @@ public class Jena {
             String PCS = (String) object;
             if ((!PCS.isEmpty())) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChangeSet", dsmwUri+PCS);
         }
-        this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", C.getDate()); //xsdUri+"dateTime");
+        this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", C.getDate());
     }
 
     public void addPullFeed(PullFeed PF)
@@ -133,9 +132,9 @@ public class Jena {
 
     public void loadDataFile(String dataFile)
     {
-		System.out.print("Loading the data ... ");
-		data.read(dataFile,"N3");
-		System.out.println("\tDONE");
+        System.out.print("Loading the data ... ");
+        data.read(dataFile,"N3");
+        System.out.println("\tDONE");
     }
 
     public void listSites()
@@ -154,6 +153,7 @@ public class Jena {
             Resource patch1=((Resource) binding1.get("site"));
             System.out.print(patch1.getURI()+"\n");
         }
+        qe1.close();
     }
 
     public void listStatements()
@@ -199,6 +199,7 @@ public class Jena {
             CS=new ChangeSet(chgSet.getLocalName());
             CS.setDate(chgSetdate.toString());
         }
+        qe1.close();
         return CS;
     }
 
@@ -226,6 +227,7 @@ public class Jena {
             CSTmp.setDate(chgSetdate.toString());
             NCS.add(CSTmp);
         }
+        qe1.close();
         return NCS;
     }
 
@@ -238,28 +240,20 @@ public class Jena {
         String date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
         QueryExecution qe1;
         query1=queryPrefix +
-			"SELECT ?cs ?id ?date WHERE { "
+			"SELECT ?cs ?date WHERE { "
 			+" ?cs a MS2W:ChangeSet . "
                         +" ?cs MS2W:date ?date . "
-                        +" ?cs MS2W:id ?id . "
 //                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
                         +" FILTER ( xsd:dateTime(?date) < \"" +date+ "\"^^xsd:dateTime )"
 			+" }";
-        System.out.println(query1);
 
-        qe1 = QueryExecutionFactory.create(query1, com.hp.hpl.jena.query.Syntax.syntaxARQ, data);
+        qe1 = QueryExecutionFactory.create(query1, Syntax.syntaxSPARQL, data);
         for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
         {
             QuerySolution binding1 = rs1.nextSolution();
             Resource chgSet=((Resource) binding1.get("cs"));
             Literal chgSetdate=((Literal) binding1.get("date"));
 
-            RDFNode rdfN=  binding1.get("id");
-            if (rdfN.isLiteral())
-            {
-                Literal chgSetid = ((Literal) rdfN);
-                System.out.print(chgSetid.toString()+"\n");
-            }
             CS=new ChangeSet (chgSet.getLocalName());
             CS.setDate(chgSetdate.toString());
             
