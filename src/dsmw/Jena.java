@@ -14,8 +14,10 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -237,7 +239,12 @@ public class Jena {
         ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
         ChangeSet CS;
         String query1;
-        String date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(D);
+        String date;
+
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+        date = sdf1.format(D);
+
         QueryExecution qe1;
         query1=queryPrefix +
 			"SELECT ?cs ?date WHERE { "

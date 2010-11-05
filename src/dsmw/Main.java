@@ -4,6 +4,7 @@ package dsmw;
 
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,19 +48,26 @@ public class Main {
         ArrayList <ChangeSet> AL1=new ArrayList <ChangeSet>();
         AL1=J.getNextCS(FCS.getChgSetID());
         System.out.println("Second CSs?: ");
+        String date="";
         for (ChangeSet o:AL1)
         {
             o.print();
+            date =o.getDate();
         }
 
+        Date D;
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+        D = sdf1.parse(date);
+
+        System.out.println("Next to Last? ");
         AL1=J.getNextCS("CS665cd66");
         for (ChangeSet o:AL1)
         {
-            System.out.println("Next to Last? ");
             o.print();
         }
-        
-        Date D=new Date();
+       
+
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
         AL2=J.getCStillDate(D);
         System.out.println("ChangeSets generated before " + D.toString());

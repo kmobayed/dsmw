@@ -41,6 +41,7 @@ public class ChangeSet {
 
     public void print()
     {
+        if (this!=null){
             System.out.print("ID= "+chgSetID);
             for (String p:previousChgSetID)
             {
@@ -48,6 +49,11 @@ public class ChangeSet {
             }
             System.out.print("\t date= "+date);
             System.out.println();
+        }
+        else
+        {
+            System.out.println("null");
+        }
     }
 
     public String getChgSetID() {
