@@ -16,6 +16,7 @@ public class ChangeSet {
     private String diff;
     private String message;
     private String date;
+    private String site;
 
     public ChangeSet(String id) {
         chgSetID =id;
@@ -74,6 +75,14 @@ public class ChangeSet {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setSite(String str) {
+        site=str;
+    }
+
+    public String getSite() {
+        return site;
     }
 
     public void setDate(String str) {

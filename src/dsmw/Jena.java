@@ -247,12 +247,13 @@ public class Jena {
 
         QueryExecution qe1;
         query1=queryPrefix +
-			"SELECT ?cs ?date WHERE { "
+			"SELECT ?cs ?date ?pcs WHERE { "
 			+" ?cs a MS2W:ChangeSet . "
                         +" ?cs MS2W:date ?date . "
-//                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
-                        +" FILTER ( xsd:dateTime(?date) < \"" +date+ "\"^^xsd:dateTime )"
-			+" }";
+                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
+                        +" FILTER ( xsd:dateTime(?date) <= \"" +date+ "\"^^xsd:dateTime )"
+			+" }"
+                        +" ORDER BY ?date ";
 
         qe1 = QueryExecutionFactory.create(query1, Syntax.syntaxSPARQL, data);
         for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
@@ -269,9 +270,22 @@ public class Jena {
                 Resource chgSetPrev = ((Resource) binding1.get("pcs"));
                 CS.addPreviousChgSet(chgSetPrev.getLocalName());
             }
-            
-            NCS.add(CS);
+            boolean newCS = true;
+            for (ChangeSet tmpCS:NCS )
+            {
+                if (CS.getChgSetID().equals(tmpCS.getChgSetID()))
+                {
+                    for (String str :CS.getPreviousChgSet())
+                        NCS.get(NCS.indexOf(tmpCS)).addPreviousChgSet(str);
+                    newCS=false;
 
+                }
+            }
+
+            if (newCS)
+            {
+                NCS.add(CS);
+            }
         }
         qe1.close();
         return NCS;

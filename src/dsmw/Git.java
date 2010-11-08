@@ -171,9 +171,16 @@ public class Git {
                         if ((!parents[i].isEmpty())) CS.addPreviousChgSet("CS"+parents[i]);
                     }
 
+                    if (tmpP.isEmpty())
+                    {
+                        String site="S"+CSid;
+                        S = new Site(site);
+                        J.addSite(S);
+                    }
+
                     if (parents.length>1)
                     {
-                        String site="S"+CS.getChgSetID();
+                        String site="S"+parents[1];
                         S = new Site(site);
                         J.addSite(S);
                         PF= new PullFeed("PF"+CS.getChgSetID());

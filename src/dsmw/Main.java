@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -41,39 +42,53 @@ public class Main {
         System.out.print("First CS: ");
         FCS.print();
 
-        String site="S"+FCS.getChgSetID();
-        Site S = new Site(site);
-        J.addSite(S);
-
         ArrayList <ChangeSet> AL1=new ArrayList <ChangeSet>();
         AL1=J.getNextCS(FCS.getChgSetID());
         System.out.println("Second CSs?: ");
-        String date="";
         for (ChangeSet o:AL1)
         {
             o.print();
-            date =o.getDate();
+           
         }
 
+        String date=FCS.getDate();
         Date D;
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
         D = sdf1.parse(date);
-
-        System.out.println("Next to Last? ");
-        AL1=J.getNextCS("CS665cd66");
-        for (ChangeSet o:AL1)
-        {
-            o.print();
-        }
-       
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        cal.setTime(D);
 
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
-        AL2=J.getCStillDate(D);
-        System.out.println("ChangeSets generated before " + D.toString());
-        for (ChangeSet o : AL2)
+        boolean more=true;
+        while (more)
         {
-            o.print();
+            AL2=J.getCStillDate(cal.getTime());
+            System.out.println("ChangeSets generated before " + cal.getTime().toString());
+            
+
+            // calculate divergence between AL2
+            for (ChangeSet o : AL2)
+            {
+                o.print();
+                if (J.getNextCS(o.getChgSetID()).size()==2)
+                {
+                    System.out.println("push");
+                }
+                if (o.getPreviousChgSet().size()==2)
+                {
+                    System.out.println("pull");
+                }
+
+                if (J.getNextCS(o.getChgSetID()).isEmpty())
+                {
+                    more = false;
+                }
+            }
+
+            cal.add(Calendar.SECOND, 1);
+
         }
         
         J.close();
