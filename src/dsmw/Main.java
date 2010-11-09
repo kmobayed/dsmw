@@ -4,7 +4,6 @@ package dsmw;
 
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,16 +26,17 @@ public class Main {
 
         String DBdirectory = args[0] ;
         String ontoFile = "file:"+args[1];
-        Git G = new Git("/Users/klm/code/project2");
+        Git G = new Git();
         Jena J= new Jena(DBdirectory,ontoFile);
         
 //        G.gitLog(J);
+//        J.addPushFeeds();
 
 
         J.listSites();
         System.out.println("===========");
-//        J.listStatements();
-//        System.out.println("===========");
+ //       J.listStatements();
+ //       System.out.println("===========");
 
         ChangeSet FCS=J.getFirstCS();
         System.out.print("First CS: ");
@@ -48,7 +48,6 @@ public class Main {
         for (ChangeSet o:AL1)
         {
             o.print();
-           
         }
 
         String date=FCS.getDate();
@@ -59,6 +58,7 @@ public class Main {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.setTime(D);
+        int step=60*60*24*365; //in seconds
 
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
         boolean more=true;
@@ -68,17 +68,25 @@ public class Main {
             System.out.println("ChangeSets generated before " + cal.getTime().toString());
             
 
-            // calculate divergence between AL2
+            // calculate divergence in time t
             for (ChangeSet o : AL2)
             {
-                o.print();
-                if (J.getNextCS(o.getChgSetID()).size()==2)
+                //o.print();
+                if (J.isPublished(o))
                 {
-                    System.out.println("push");
+                    o.publish();
+                    System.out.println("published : "+o.getChgSetID());
                 }
-                if (o.getPreviousChgSet().size()==2)
+                else
                 {
-                    System.out.println("pull");
+                    if (J.inPullFeed(o))
+                    {
+                        System.out.println("remotely modified: "+o.getChgSetID());
+                    }
+                    else
+                    {
+                        System.out.println("locally modified: "+ o.getChgSetID());
+                    }
                 }
 
                 if (J.getNextCS(o.getChgSetID()).isEmpty())
@@ -87,7 +95,7 @@ public class Main {
                 }
             }
 
-            cal.add(Calendar.SECOND, 1);
+            cal.add(Calendar.SECOND, step);
 
         }
         

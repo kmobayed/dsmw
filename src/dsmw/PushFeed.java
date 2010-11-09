@@ -9,7 +9,8 @@ package dsmw;
 public class PushFeed {
     private String pushFeedID;
     private ChangeSet hasPushHead;
-    private Site site;
+    private String siteID;
+    private String headID;
   
     
     public PushFeed(String id) {
@@ -24,22 +25,31 @@ public class PushFeed {
         this.pushFeedID = pushFeedID;
     }
 
-    public void setSite(Site S)
-    {
-        site=S;
+
+    public String getHeadPushFeed() {
+        return headID;
     }
 
-    public Site getSite()
-    {
-        return site;
+    public void setHeadPushFeed(String headPullFeed) {
+        this.headID = headPullFeed;
     }
 
-    public ChangeSet getHasPushHead() {
+    public ChangeSet getPushHead() {
         return hasPushHead;
     }
 
-    public void setHasPushHead(ChangeSet hasPushHead) {
+    public void setPushHead(ChangeSet hasPushHead) {
         this.hasPushHead = hasPushHead;
     }
+    public void setSite(String S)
+    {
+        siteID=S;
+    }
+
+    public String getSite()
+    {
+        return siteID;
+    }
+
 
 }

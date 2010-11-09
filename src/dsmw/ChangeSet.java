@@ -17,10 +17,12 @@ public class ChangeSet {
     private String message;
     private String date;
     private String site;
+    private boolean published;
 
     public ChangeSet(String id) {
         chgSetID =id;
         previousChgSetID= new ArrayList<String>();
+        published = false;
     }
 
     public ChangeSet() {
@@ -61,6 +63,16 @@ public class ChangeSet {
         return chgSetID;
     }
 
+    public boolean isPublished()
+    {
+        return published;
+    }
+
+    public void publish()
+    {
+        published=true;
+    }
+    
     public void setDiff(String df) {
         diff=df;
     }

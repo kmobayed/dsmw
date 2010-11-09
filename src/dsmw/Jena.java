@@ -126,8 +126,8 @@ public class Jena {
     public void addPushFeed(PushFeed PF)
     {
         this.addStatement(dsmwUri+PF.getPushFeedID(), rdfUri+"type", dsmwUri+"PushFeed");
-        this.addStatement(dsmwUri+PF.getPushFeedID(), dsmwUri+"hasPushHead", dsmwUri+PF.getHasPushHead().getChgSetID());
-        this.addStatement(dsmwUri+PF.getSite().getSiteID(), dsmwUri+"hasPush", dsmwUri+PF.getPushFeedID());
+        this.addStatement(dsmwUri+PF.getPushFeedID(), dsmwUri+"hasPushHead", dsmwUri+PF.getHeadPushFeed());
+        this.addStatement(dsmwUri+PF.getSite(), dsmwUri+"hasPush", dsmwUri+PF.getPushFeedID());
     }
 
 
@@ -290,5 +290,131 @@ public class Jena {
         qe1.close();
         return NCS;
     }
-    
+
+    public void addPushFeeds()
+    {
+        ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
+        ChangeSet CS;
+        String query1;
+
+        QueryExecution qe1;
+        query1=queryPrefix +
+			"SELECT ?cs ?date ?pcs WHERE { "
+			+" ?cs a MS2W:ChangeSet . "
+                        +" ?cs MS2W:date ?date . "
+                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
+			+" }"
+                        +" ORDER BY ?date ";
+
+        qe1 = QueryExecutionFactory.create(query1, Syntax.syntaxSPARQL, data);
+        for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
+        {
+            QuerySolution binding1 = rs1.nextSolution();
+            Resource chgSet=((Resource) binding1.get("cs"));
+            Literal chgSetdate=((Literal) binding1.get("date"));
+
+            CS=new ChangeSet (chgSet.getLocalName());
+            CS.setDate(chgSetdate.toString());
+
+            if ((Resource) binding1.get("pcs")!=null)
+            {
+                Resource chgSetPrev = ((Resource) binding1.get("pcs"));
+                CS.addPreviousChgSet(chgSetPrev.getLocalName());
+            }
+            boolean newCS = true;
+            for (ChangeSet tmpCS:NCS )
+            {
+                if (CS.getChgSetID().equals(tmpCS.getChgSetID()))
+                {
+                    for (String str :CS.getPreviousChgSet())
+                        NCS.get(NCS.indexOf(tmpCS)).addPreviousChgSet(str);
+                    newCS=false;
+
+                }
+            }
+
+            if (newCS)
+            {
+                NCS.add(CS);
+            }
+        }
+        qe1.close();
+        for (ChangeSet tmpCS : NCS)
+        {
+        
+            ArrayList<ChangeSet> children = this.getNextCS(tmpCS.getChgSetID());
+            if (children.size()==2)
+            {
+                // push feed
+                String site="S"+tmpCS.getChgSetID().substring(2);
+                Site S = new Site(site);
+                this.addSite(S);
+                PushFeed PF= new PushFeed("F"+tmpCS.getChgSetID().substring(2));
+                PF.setHeadPushFeed(tmpCS.getChgSetID());
+                PF.setSite(S.getSiteID());
+                this.addPushFeed(PF);
+            }
+        }
+    }
+
+
+    public boolean isPublished(ChangeSet CS)
+    {
+        boolean published=false;
+        
+        String query1;
+        String CSid=CS.getChgSetID();
+        QueryExecution qe1;
+
+        while(CSid !=null )
+        {
+
+            query1=queryPrefix +
+                            "SELECT ?pf  WHERE { "
+                            + "?pf MS2W:hasPushHead MS2W:"+CSid+" ."
+                            +"}";
+
+            qe1 = QueryExecutionFactory.create(query1, data);
+            ResultSet rs1 = qe1.execSelect();
+            if (rs1.hasNext())
+                published = true;
+
+            ArrayList <ChangeSet> next=this.getNextCS(CSid);
+            if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
+            else CSid=null;
+            qe1.close();
+        }
+
+        return published;
+    }
+
+    public boolean inPullFeed(ChangeSet CS)
+    {
+        boolean inPull=false;
+
+        String query1;
+        String CSid=CS.getChgSetID();
+        QueryExecution qe1;
+
+        while(CSid !=null )
+        {
+
+            query1=queryPrefix +
+                            "SELECT ?pf  WHERE { "
+                            + "?pf MS2W:hasPullHead MS2W:"+CSid+" ."
+                            +"}";
+
+            qe1 = QueryExecutionFactory.create(query1, data);
+            ResultSet rs1 = qe1.execSelect();
+            if (rs1.hasNext())
+                inPull = true;
+
+            ArrayList <ChangeSet> next=this.getNextCS(CSid);
+            if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
+            else CSid=null;
+            qe1.close();
+        }
+
+        return inPull;
+    }
 }
