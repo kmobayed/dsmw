@@ -51,6 +51,7 @@ public class ChangeSet {
                 System.out.print("\t previous= "+p);
             }
             System.out.print("\t date= "+date);
+            System.out.println("\t published= "+published);
             System.out.println();
         }
         else

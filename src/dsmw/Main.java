@@ -29,8 +29,8 @@ public class Main {
         Git G = new Git();
         Jena J= new Jena(DBdirectory,ontoFile);
         
-//        G.gitLog(J);
-//        J.addPushFeeds();
+        G.gitLog(J);
+        J.addPushFeeds();
 
 
         J.listSites();
@@ -58,40 +58,44 @@ public class Main {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.setTime(D);
-        int step=60*60*24*365; //in seconds
+        int step=3; //in seconds
 
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
         boolean more=true;
         while (more)
         {
             AL2=J.getCStillDate(cal.getTime());
-            System.out.println("ChangeSets generated before " + cal.getTime().toString());
+            System.out.println("Divergence awareness at " + cal.getTime().toString());
             
 
             // calculate divergence in time t
             for (ChangeSet o : AL2)
             {
                 //o.print();
-                if (J.isPublished(o))
+                if (!o.isPublished())
                 {
-                    o.publish();
-                    System.out.println("published : "+o.getChgSetID());
-                }
-                else
-                {
-                    if (J.inPullFeed(o))
+                    if (J.inPushFeed(o,cal.getTime()))
                     {
-                        System.out.println("remotely modified: "+o.getChgSetID());
+                        o.publish();
+                        J.publishChangeSet(o);
+                        System.out.println("published : "+o.getChgSetID());
                     }
                     else
                     {
-                        System.out.println("locally modified: "+ o.getChgSetID());
+                        if (J.inPullFeed(o))
+                        {
+                            System.out.println("remotely modified: "+o.getChgSetID());
+                        }
+                        else
+                        {
+                            System.out.println("locally modified: "+ o.getChgSetID());
+                        }
                     }
-                }
 
-                if (J.getNextCS(o.getChgSetID()).isEmpty())
-                {
-                    more = false;
+                    if (J.getNextCS(o.getChgSetID()).isEmpty())
+                    {
+                        more = false;
+                    }
                 }
             }
 

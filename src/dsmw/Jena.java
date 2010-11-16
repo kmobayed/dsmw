@@ -47,6 +47,7 @@ public class Jena {
         DBdirectory=DB;
         ontoFile=onto;
         data = TDBFactory.createModel(DBdirectory);
+        data.removeAll();
         //data.read(ontoFile,"RDF/XML");
     }
 
@@ -114,6 +115,11 @@ public class Jena {
         this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", C.getDate());
     }
 
+    public void publishChangeSet(ChangeSet C)
+    {
+        this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"published", "true");
+    }
+    
     public void addPullFeed(PullFeed PF)
     {
         this.addStatement(dsmwUri+PF.getPullFeedID(), rdfUri+"type", dsmwUri+"PullFeed");
@@ -247,10 +253,11 @@ public class Jena {
 
         QueryExecution qe1;
         query1=queryPrefix +
-			"SELECT ?cs ?date ?pcs WHERE { "
+			"SELECT ?cs ?date ?pcs ?pub WHERE { "
 			+" ?cs a MS2W:ChangeSet . "
                         +" ?cs MS2W:date ?date . "
                         +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
+                        +" OPTIONAL { ?cs MS2W:published ?pub  } ."
                         +" FILTER ( xsd:dateTime(?date) <= \"" +date+ "\"^^xsd:dateTime )"
 			+" }"
                         +" ORDER BY ?date ";
@@ -262,9 +269,16 @@ public class Jena {
             Resource chgSet=((Resource) binding1.get("cs"));
             Literal chgSetdate=((Literal) binding1.get("date"));
 
+
             CS=new ChangeSet (chgSet.getLocalName());
             CS.setDate(chgSetdate.toString());
-            
+
+            if ((Literal) binding1.get("pub")!=null)
+            {
+                Literal chgSetpub=((Literal) binding1.get("pub"));
+                if (chgSetpub.getString().matches("true"))
+                    CS.publish();
+            }
             if ((Resource) binding1.get("pcs")!=null)
             {
                 Resource chgSetPrev = ((Resource) binding1.get("pcs"));
@@ -293,16 +307,14 @@ public class Jena {
 
     public void addPushFeeds()
     {
-        ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
         ChangeSet CS;
         String query1;
 
         QueryExecution qe1;
         query1=queryPrefix +
-			"SELECT ?cs ?date ?pcs WHERE { "
+			"SELECT DISTINCT ?cs ?date WHERE { "
 			+" ?cs a MS2W:ChangeSet . "
                         +" ?cs MS2W:date ?date . "
-                        +" OPTIONAL { ?cs MS2W:previousChangeSet ?pcs  } ."
 			+" }"
                         +" ORDER BY ?date ";
 
@@ -315,76 +327,63 @@ public class Jena {
 
             CS=new ChangeSet (chgSet.getLocalName());
             CS.setDate(chgSetdate.toString());
-
-            if ((Resource) binding1.get("pcs")!=null)
-            {
-                Resource chgSetPrev = ((Resource) binding1.get("pcs"));
-                CS.addPreviousChgSet(chgSetPrev.getLocalName());
-            }
-            boolean newCS = true;
-            for (ChangeSet tmpCS:NCS )
-            {
-                if (CS.getChgSetID().equals(tmpCS.getChgSetID()))
-                {
-                    for (String str :CS.getPreviousChgSet())
-                        NCS.get(NCS.indexOf(tmpCS)).addPreviousChgSet(str);
-                    newCS=false;
-
-                }
-            }
-
-            if (newCS)
-            {
-                NCS.add(CS);
-            }
-        }
-        qe1.close();
-        for (ChangeSet tmpCS : NCS)
-        {
-        
-            ArrayList<ChangeSet> children = this.getNextCS(tmpCS.getChgSetID());
+            ArrayList<ChangeSet> children = this.getNextCS(CS.getChgSetID());
             if (children.size()==2)
             {
                 // push feed
-                String site="S"+tmpCS.getChgSetID().substring(2);
+                String site="S"+CS.getChgSetID().substring(2);
                 Site S = new Site(site);
                 this.addSite(S);
-                PushFeed PF= new PushFeed("F"+tmpCS.getChgSetID().substring(2));
-                PF.setHeadPushFeed(tmpCS.getChgSetID());
+                PushFeed PF= new PushFeed("F"+CS.getChgSetID().substring(2));
+                PF.setHeadPushFeed(CS.getChgSetID());
                 PF.setSite(S.getSiteID());
                 this.addPushFeed(PF);
             }
+
         }
+        qe1.close();
+        
     }
 
 
-    public boolean isPublished(ChangeSet CS)
+    public boolean inPushFeed(ChangeSet CS, Date D)
     {
         boolean published=false;
         
         String query1;
         String CSid=CS.getChgSetID();
+        
         QueryExecution qe1;
+        String date;
+
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+        date = sdf1.format(D);
 
         while(CSid !=null )
         {
-
             query1=queryPrefix +
-                            "SELECT ?pf  WHERE { "
-                            + "?pf MS2W:hasPushHead MS2W:"+CSid+" ."
+                            "SELECT ?pf  ?date WHERE { "
+                            +" ?pf MS2W:hasPushHead MS2W:"+CSid+" ."
+                            +" MS2W:"+CSid+" MS2W:date ?date ."
+                            +" FILTER ( xsd:dateTime(?date) <= \"" +date+ "\"^^xsd:dateTime )"
                             +"}";
 
             qe1 = QueryExecutionFactory.create(query1, data);
             ResultSet rs1 = qe1.execSelect();
             if (rs1.hasNext())
+            {
                 published = true;
-
-            ArrayList <ChangeSet> next=this.getNextCS(CSid);
-            if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
-            else CSid=null;
+                CSid = null;
+            }
+            else
+            {
+                ArrayList <ChangeSet> next=this.getNextCS(CSid);
+                if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
+                else CSid=null;
+            }
             qe1.close();
         }
-
         return published;
     }
 
@@ -398,7 +397,6 @@ public class Jena {
 
         while(CSid !=null )
         {
-
             query1=queryPrefix +
                             "SELECT ?pf  WHERE { "
                             + "?pf MS2W:hasPullHead MS2W:"+CSid+" ."
@@ -407,11 +405,16 @@ public class Jena {
             qe1 = QueryExecutionFactory.create(query1, data);
             ResultSet rs1 = qe1.execSelect();
             if (rs1.hasNext())
+            {
                 inPull = true;
-
-            ArrayList <ChangeSet> next=this.getNextCS(CSid);
-            if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
-            else CSid=null;
+                CSid = null;
+            }
+            else
+            {
+                ArrayList <ChangeSet> next=this.getNextCS(CSid);
+                if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
+                else CSid=null;
+            }
             qe1.close();
         }
 
