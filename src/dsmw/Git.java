@@ -67,6 +67,7 @@ public class Git {
                         PF.setHeadPullFeed("CS"+parents[1]);
                         PF.setSite(S.getSiteID());
                         J.addPullFeed(PF);
+                        J.setPullFeed(CS, PF);
                     }
                 }
 

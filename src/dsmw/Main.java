@@ -35,8 +35,8 @@ public class Main {
 
         J.listSites();
         System.out.println("===========");
- //       J.listStatements();
- //       System.out.println("===========");
+        J.listStatements();
+        System.out.println("===========");
 
         ChangeSet FCS=J.getFirstCS();
         System.out.print("First CS: ");

@@ -112,12 +112,23 @@ public class Jena {
             String PCS = (String) object;
             if ((!PCS.isEmpty())) this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"previousChangeSet", dsmwUri+PCS);
         }
+
         this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"date", C.getDate());
     }
 
     public void publishChangeSet(ChangeSet C)
     {
         this.addLiteralStatement(dsmwUri+C.getChgSetID(), dsmwUri+"published", "true");
+    }
+
+    public void setPullFeed(ChangeSet C, PullFeed F)
+    {
+        this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPullFeed", dsmwUri+F.getPullFeedID());
+    }
+
+    public void setPushFeed(ChangeSet C, PushFeed F)
+    {
+        this.addStatement(dsmwUri+C.getChgSetID(), dsmwUri+"inPushFeed", dsmwUri+F.getPushFeedID());
     }
     
     public void addPullFeed(PullFeed PF)
@@ -239,6 +250,34 @@ public class Jena {
         return NCS;
     }
 
+    public ArrayList <ChangeSet> getPreviousCS(String CS)
+    {
+        ArrayList <ChangeSet> NCS= new ArrayList<ChangeSet>();
+        ChangeSet CSTmp=null;
+        String query1;
+        QueryExecution qe1;
+        query1=queryPrefix +
+			"SELECT DISTINCT ?cs  ?date WHERE { "
+			+" ?cs a MS2W:ChangeSet ."
+                        +" ?cs MS2W:date ?date ."
+                        + "MS2W:"+CS+"  MS2W:previousChangeSet ?cs . "
+			+" }";
+        qe1 = QueryExecutionFactory.create(query1, data);
+        for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
+        {
+            QuerySolution binding1 = rs1.nextSolution();
+            Resource chgSet=((Resource) binding1.get("cs"));
+            Literal chgSetdate=((Literal) binding1.get("date"));
+
+            CSTmp=new ChangeSet (chgSet.getLocalName());
+            CSTmp.addPreviousChgSet(CS);
+            CSTmp.setDate(chgSetdate.toString());
+            NCS.add(CSTmp);
+        }
+        qe1.close();
+        return NCS;
+    }
+
 
     public ArrayList <ChangeSet> getCStillDate(Date D)
     {
@@ -338,6 +377,16 @@ public class Jena {
                 PF.setHeadPushFeed(CS.getChgSetID());
                 PF.setSite(S.getSiteID());
                 this.addPushFeed(PF);
+                this.setPushFeed(CS, PF);
+                ChangeSet NCS=children.get(1);
+                ArrayList<ChangeSet> parents = this.getPreviousCS(NCS.getChgSetID());
+                while ((parents.size()==1)&&(children.size()>0))
+                {
+                    this.setPushFeed(NCS, PF);
+                    children =this.getNextCS(NCS.getChgSetID());
+                    if (children.size()>0) NCS=children.get(0);
+                    parents = this.getPreviousCS(NCS.getChgSetID());
+                }
             }
 
         }

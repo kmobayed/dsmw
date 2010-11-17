@@ -10,8 +10,8 @@ import java.util.ArrayList;
 public class ChangeSet {
     private String chgSetID;
     private ArrayList<Patch> patches;
-    private PushFeed inPushFeed;
-    private PullFeed inPullFeed;
+    private String PushFeed;
+    private String PullFeed;
     private ArrayList<String> previousChgSetID;
     private String diff;
     private String message;
@@ -29,9 +29,9 @@ public class ChangeSet {
         chgSetID ="";
     }
 
-    public ChangeSet(String id, PushFeed pu) {
+    public ChangeSet(String id, String pu) {
         chgSetID =id;
-        inPushFeed =pu;
+        PushFeed =pu;
     }
 
     public ArrayList<String> getPreviousChgSet() {
@@ -110,20 +110,20 @@ public class ChangeSet {
         this.chgSetID = chgSetID;
     }
 
-    public PullFeed getInPullFeed() {
-        return inPullFeed;
+    public String getInPullFeed() {
+        return PullFeed;
     }
 
-    public void setInPullFeed(PullFeed inPullFeed) {
-        this.inPullFeed = inPullFeed;
+    public void setInPullFeed(String inPullFeed) {
+        this.PullFeed = inPullFeed;
     }
 
-    public PushFeed getInPushFeed() {
-        return inPushFeed;
+    public String getInPushFeed() {
+        return PushFeed;
     }
 
-    public void setInPushFeed(PushFeed inPushFeed) {
-        this.inPushFeed = inPushFeed;
+    public void setInPushFeed(String inPushFeed) {
+        this.PushFeed = inPushFeed;
     }
 
     public ArrayList<Patch> getPatches() {
