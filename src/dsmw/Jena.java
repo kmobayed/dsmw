@@ -1,8 +1,10 @@
 
 package dsmw;
 
+import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
@@ -233,7 +235,8 @@ public class Jena {
 			+" ?cs a MS2W:ChangeSet ."
                         +" ?cs MS2W:date ?date ."
                         +" ?cs MS2W:previousChangeSet MS2W:"+ CS +" . "
-			+" }";
+			+" }"
+                        +" ORDER BY ?date ";
         qe1 = QueryExecutionFactory.create(query1, data);
         for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
         {
@@ -261,7 +264,8 @@ public class Jena {
 			+" ?cs a MS2W:ChangeSet ."
                         +" ?cs MS2W:date ?date ."
                         + "MS2W:"+CS+"  MS2W:previousChangeSet ?cs . "
-			+" }";
+			+" }"
+                        +" ORDER BY ?date ";
         qe1 = QueryExecutionFactory.create(query1, data);
         for (ResultSet rs1 = qe1.execSelect() ; rs1.hasNext() ; )
         {
@@ -449,9 +453,11 @@ public class Jena {
             query1=queryPrefix +
                             "SELECT ?pf  WHERE { "
                             + "?pf MS2W:hasPullHead MS2W:"+CSid+" ."
+                            + " NOT EXISTS { MS2W:"+CSid+" MS2W:published \"true\".}"
                             +"}";
-
-            qe1 = QueryExecutionFactory.create(query1, data);
+            
+            Query query = QueryFactory.create(query1,Syntax.syntaxARQ);
+            qe1 = QueryExecutionFactory.create(query, data);
             ResultSet rs1 = qe1.execSelect();
             if (rs1.hasNext())
             {

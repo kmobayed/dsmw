@@ -20,7 +20,7 @@ public class Git {
 
     public void gitLog(Jena J)
     {
-        String cmd1="git log --abbrev-commit --parents  --format=%h%n%p%n%s%n%ci";
+        String cmd1="git log --abbrev-commit --parents  --pretty=format:%h%n%p%n%s%n%ci";
         String CSid = null;
         String tmpP = null;
         String message = null;

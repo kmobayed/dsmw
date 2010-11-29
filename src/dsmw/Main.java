@@ -3,7 +3,9 @@
 package dsmw;
 
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,7 +22,7 @@ public class Main {
     {
         if (args.length<2)
         {
-                System.err.println("Usage: java -jar loadData <TDB folder> <ontology file> ");
+                System.err.println("Usage: java -jar dsmw.jar <TDB folder> <ontology file> ");
                 System.exit(0);
         }
 
@@ -35,8 +37,8 @@ public class Main {
 
         J.listSites();
         System.out.println("===========");
-        J.listStatements();
-        System.out.println("===========");
+//        J.listStatements();
+//        System.out.println("===========");
 
         ChangeSet FCS=J.getFirstCS();
         System.out.print("First CS: ");
@@ -62,11 +64,16 @@ public class Main {
 
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
         boolean more=true;
+        FileOutputStream fos = new FileOutputStream("out.txt");
+        PrintWriter out = new PrintWriter(fos);
+        
         while (more)
         {
             AL2=J.getCStillDate(cal.getTime());
             System.out.println("Divergence awareness at " + cal.getTime().toString());
-            
+            int RM=0;
+            int LM=0;
+
 
             // calculate divergence in time t
             for (ChangeSet o : AL2)
@@ -85,10 +92,12 @@ public class Main {
                         if (J.inPullFeed(o))
                         {
                             System.out.println("remotely modified: "+o.getChgSetID());
+                            RM++;
                         }
                         else
                         {
                             System.out.println("locally modified: "+ o.getChgSetID());
+                            LM++;
                         }
                     }
 
@@ -97,13 +106,30 @@ public class Main {
                         more = false;
                     }
                 }
+                else System.out.println("published : "+o.getChgSetID());
             }
+//            if (!J.getNextCS(AL2.get(AL2.size()-1).getChgSetID()).isEmpty())
+//            {
+//                date=J.getNextCS(AL2.get(AL2.size()-1).getChgSetID()).get(0).getDate();
+//                sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+//                sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+//                D = sdf1.parse(date);
+//                cal.setTime(D);
+//            }
+//            else
+                
+                if (RM>0) System.out.println("Remotely Modified = "+RM);
+                if (LM>0) System.out.println("Locally Modified = "+LM);
+                if (LM==0 && RM==0) System.out.println("Up-todate");
 
-            cal.add(Calendar.SECOND, step);
+                out.print(cal.getTime().getTime()+"\t"+LM+"\t"+RM+"\n");
+
+                cal.add(Calendar.SECOND, step);
 
         }
         
         J.close();
+        out.close();
     }
 
 }
