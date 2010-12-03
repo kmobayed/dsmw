@@ -30,10 +30,18 @@ public class Main {
         String ontoFile = "file:"+args[1];
         Git G = new Git();
         Jena J= new Jena(DBdirectory,ontoFile);
-        
+
+        System.out.print("Loading ChangeSets ... ");
         G.gitLog(J);
+        System.out.println("DONE");
+
+        System.out.print("Adding PushFeeds ... ");
         J.addPushFeeds();
+        System.out.println("DONE");
+
+        System.out.print("Adding Sites ... ");
         J.addsites();
+        System.out.println("DONE");
 
 
         J.listSites();
@@ -61,7 +69,7 @@ public class Main {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.setTime(D);
-        int step=3; //in seconds
+        int step=86400; //in seconds
 
         ArrayList <ChangeSet> AL2=new ArrayList <ChangeSet>();
         boolean more=true;
