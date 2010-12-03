@@ -33,6 +33,7 @@ public class Main {
         
         G.gitLog(J);
         J.addPushFeeds();
+        J.addsites();
 
 
         J.listSites();
@@ -89,10 +90,25 @@ public class Main {
                     }
                     else
                     {
-                        if (J.inPullFeed(o))
+                        if (J.inPullFeed(o,cal.getTime()))
                         {
-                            System.out.println("remotely modified: "+o.getChgSetID());
-                            RM++;
+                            if (J.isPullHead(o,cal.getTime())) //pull head
+                            {
+                                //publish parents
+                                System.out.println("remotely modified: "+o.getChgSetID());
+                                RM++;
+                                Date D2=sdf1.parse(J.getNextCS(o.getChgSetID()).get(0).getDate());
+                                if (D2.before(cal.getTime()))
+                                {
+                                    J.publishParents(o,cal.getTime());
+                                    J.publishChangeSet(o);
+                                }
+                            }
+                            else
+                            {
+                                System.out.println("remotely modified: "+o.getChgSetID());
+                                RM++;
+                            }
                         }
                         else
                         {
@@ -120,7 +136,7 @@ public class Main {
                 
                 if (RM>0) System.out.println("Remotely Modified = "+RM);
                 if (LM>0) System.out.println("Locally Modified = "+LM);
-                if (LM==0 && RM==0) System.out.println("Up-todate");
+                if (LM==0 && RM==0) System.out.println("Up-to-date");
 
                 out.print(cal.getTime().getTime()+"\t"+LM+"\t"+RM+"\n");
 

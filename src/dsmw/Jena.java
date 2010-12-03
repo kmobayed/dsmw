@@ -376,7 +376,7 @@ public class Jena {
                 // push feed
                 String site="S"+CS.getChgSetID().substring(2);
                 Site S = new Site(site);
-                this.addSite(S);
+                //this.addSite(S);
                 PushFeed PF= new PushFeed("F"+CS.getChgSetID().substring(2));
                 PF.setHeadPushFeed(CS.getChgSetID());
                 PF.setSite(S.getSiteID());
@@ -440,23 +440,61 @@ public class Jena {
         return published;
     }
 
-    public boolean inPullFeed(ChangeSet CS)
+    public ChangeSet LowestCommonAncestor(ChangeSet CS1, ChangeSet CS2)
+    {
+        ChangeSet LCA=null;
+        boolean found=false;
+
+        while((this.getPreviousCS(CS1.getChgSetID())!=null)&&(!found))
+        {
+            ArrayList <ChangeSet> parents1=this.getPreviousCS(CS1.getChgSetID());
+            ChangeSet tmpCS2=CS2;
+            while ((this.getPreviousCS(tmpCS2.getChgSetID()) !=null)&&(!found))
+            {
+                ArrayList <ChangeSet> parents2=this.getPreviousCS(tmpCS2.getChgSetID());
+                if (parents1.get(0).equals(parents2.get(0)))
+                {
+                    LCA=parents1.get(0);
+                    found=true;
+                }
+                if (parents1.get(0).equals(parents2.get(0)))
+                {
+                    LCA=parents1.get(0);
+                    found=true;
+                }
+                tmpCS2=parents2.get(0);
+
+            }
+            CS1=parents1.get(0);
+        }
+
+
+        return LCA;
+    }
+    public boolean inPullFeed(ChangeSet CS, Date D)
     {
         boolean inPull=false;
 
         String query1;
         String CSid=CS.getChgSetID();
         QueryExecution qe1;
+        String date;
+
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+        date = sdf1.format(D);
 
         while(CSid !=null )
         {
             query1=queryPrefix +
                             "SELECT ?pf  WHERE { "
                             + "?pf MS2W:hasPullHead MS2W:"+CSid+" ."
+                            +" MS2W:"+CSid+" MS2W:date ?date ."
+                          //  +" FILTER ( xsd:dateTime(?date) <= \"" +date+ "\"^^xsd:dateTime )"
                             + " NOT EXISTS { MS2W:"+CSid+" MS2W:published \"true\".}"
                             +"}";
             
-            Query query = QueryFactory.create(query1,Syntax.syntaxARQ);
+            Query query = QueryFactory.create(query1, Syntax.syntaxARQ);
             qe1 = QueryExecutionFactory.create(query, data);
             ResultSet rs1 = qe1.execSelect();
             if (rs1.hasNext())
@@ -467,12 +505,72 @@ public class Jena {
             else
             {
                 ArrayList <ChangeSet> next=this.getNextCS(CSid);
-                if (!next.isEmpty()) CSid=next.get(0).getChgSetID();
+                if (next.size()==1)
+                {
+                    CSid = next.get(0).getChgSetID();
+                }
                 else CSid=null;
             }
             qe1.close();
         }
 
         return inPull;
+    }
+
+    boolean isPullHead(ChangeSet CS, Date D)
+    {
+        boolean isHead=false;
+
+        String query1;
+        String CSid=CS.getChgSetID();
+        QueryExecution qe1;
+        String date;
+
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
+        date = sdf1.format(D);
+
+        query1=queryPrefix +
+                            "SELECT ?pf  WHERE { "
+                            + "?pf MS2W:hasPullHead MS2W:"+CSid+" ."
+                            +" MS2W:"+CSid+" MS2W:date ?date ."
+                            +" FILTER ( xsd:dateTime(?date) <= \"" +date+ "\"^^xsd:dateTime )"
+                          //  + " NOT EXISTS { MS2W:"+CSid+" MS2W:published \"true\".}"
+                            +"}";
+
+            Query query = QueryFactory.create(query1,Syntax.syntaxARQ);
+            qe1 = QueryExecutionFactory.create(query, data);
+            ResultSet rs1 = qe1.execSelect();
+            if (rs1.hasNext())
+                isHead = true;
+
+        return isHead;
+    }
+
+    void publishParents(ChangeSet CS, Date D)
+    {
+        String CSid=CS.getChgSetID();
+        ArrayList<ChangeSet> parents = this.getPreviousCS(CSid);
+        if (this.inPullFeed(parents.get(0),D))
+        {
+        this.publishChangeSet(parents.get(0));
+        parents = this.getPreviousCS(parents.get(0).getChgSetID());
+        }
+        else 
+        {
+            this.publishChangeSet(parents.get(1));
+            parents = this.getPreviousCS(parents.get(1).getChgSetID());
+        }
+        while (parents.size()>0)
+        {
+            this.publishChangeSet(parents.get(0));
+            parents = this.getPreviousCS(parents.get(0).getChgSetID());
+
+        }
+    }
+
+    void addsites()
+    {
+
     }
 }
